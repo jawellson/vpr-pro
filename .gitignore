@@ -1,0 +1,12 @@
+.idea/
+__pycache__/
+build/
+dist/
+mvector.egg-info/
+log/
+test*.py
+dataset/
+audio_db/
+output/
+models/
+feature_models/
