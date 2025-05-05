@@ -7,7 +7,7 @@ from mvector.models.utils import Conv1d, length_to_mask, TDNNBlock, BatchNorm1d
 
 
 class Res2NetBlock(torch.nn.Module):
-    def __init__(self, in_channels, out_channels, scale=8, kernel_size=3, dilation=1):
+    def __init__(self, in_channels, out_channels, scale=2, kernel_size=3, dilation=1):
         """Implementation of Res2Net Block with dilation
            The paper is refered as "Res2Net: A New Multi-scale Backbone Architecture",
            whose url is https://arxiv.org/abs/1904.01169
@@ -89,7 +89,7 @@ class SERes2NetBlock(nn.Module):
             self,
             in_channels,
             out_channels,
-            res2net_scale=8,
+            res2net_scale=2,
             se_channels=128,
             kernel_size=1,
             dilation=1,
@@ -154,24 +154,13 @@ class EcapaTdnn(torch.nn.Module):
             kernel_sizes=[5, 3, 3, 3, 1],
             dilations=[1, 2, 3, 4, 1],
             attention_channels=128,
-            res2net_scale=8,
+            res2net_scale=2,
             se_channels=128,
             global_context=True,
             groups=[1, 1, 1, 1, 1], ):
         """Implementation of ECAPA-TDNN backbone model network
            The paper is refered as "ECAPA-TDNN: Emphasized Channel Attention, Propagation and Aggregation in TDNN Based Speaker Verification"
            whose url is: https://arxiv.org/abs/2005.07143
-        Args:
-            input_size (_type_): input fature dimension
-            embd_dim (int, optional): speaker embedding size. Defaults to 192.
-            activation (paddle.nn.class, optional): activation function. Defaults to nn.ReLU.
-            channels (list, optional): inter embedding dimension. Defaults to [512, 512, 512, 512, 1536].
-            kernel_sizes (list, optional): kernel size of 1-d convolution in TDNN block . Defaults to [5, 3, 3, 3, 1].
-            dilations (list, optional): dilations of 1-d convolution in TDNN block. Defaults to [1, 2, 3, 4, 1].
-            attention_channels (int, optional): attention dimensions. Defaults to 128.
-            res2net_scale (int, optional): scale value in res2net. Defaults to 8.
-            se_channels (int, optional): dimensions of squeeze-excitation block. Defaults to 128.
-            global_context (bool, optional): global context flag. Defaults to True.
         """
         super().__init__()
         assert len(channels) == len(kernel_sizes)

@@ -1,0 +1,68 @@
+
+dataset_conf:
+  dataset:
+    min_duration: 0.3
+    max_duration: 3
+    sample_rate: 16000
+    use_dB_normalization: True
+    target_dB: -20
+  sampler:
+    batch_size: 128
+    drop_last: True
+  dataLoader:
+    num_workers: 8
+  eval_conf:
+    batch_size: 16
+    max_duration: 20
+  train_list: 'dataset/train_list.txt'
+  enroll_list: 'dataset/cn-celeb-test/enroll_list.txt'
+  trials_list: 'dataset/cn-celeb-test/trials_list.txt'
+  is_use_pksampler: False
+  sample_per_id: 4
+
+preprocess_conf:
+  use_hf_model: False
+  feature_method: 'Fbank'
+  method_args:
+    sample_frequency: 16000
+    num_mel_bins: 80
+
+model_conf:
+  model: 'EcapaTdnn'
+  model_args:
+    embd_dim: 192
+    pooling_type: 'ASP'
+    channels: [512, 512, 512, 512, 1536]
+  classifier:
+    classifier_type: 'Cosine'
+    num_speakers: 800
+    num_blocks: 0
+
+loss_conf:
+  loss: 'AAMLoss'
+  loss_args:
+    margin: 0.2
+    scale: 32
+    easy_margin: False
+    label_smoothing: 0.0
+  use_margin_scheduler: True
+  margin_scheduler_args:
+    initial_margin: 0.0
+    final_margin: 0.3
+
+optimizer_conf:
+  optimizer: 'Adam'
+  optimizer_args:
+    lr: 0.001
+    weight_decay: !!float 1e-5
+  scheduler: 'WarmupCosineSchedulerLR'
+  scheduler_args:
+    min_lr: !!float 1e-5
+    max_lr: 0.001
+    warmup_epoch: 5
+
+train_conf:
+  enable_amp: False
+  use_compile: False
+  max_epoch: 60
+  log_interval: 100

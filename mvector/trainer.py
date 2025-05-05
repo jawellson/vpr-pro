@@ -15,7 +15,7 @@ from torch.utils.data.distributed import DistributedSampler
 from torchinfo import summary
 from tqdm import tqdm
 from visualdl import LogWriter
-
+from thop import profile
 from loguru import logger
 from mvector.data_utils.collate_fn import collate_fn
 from mvector.data_utils.featurizer import AudioFeaturizer
@@ -29,6 +29,7 @@ from mvector.optimizer import build_optimizer, build_lr_scheduler
 from mvector.optimizer.scheduler import MarginScheduler
 from mvector.utils.checkpoint import save_checkpoint, load_pretrained, load_checkpoint
 from mvector.utils.utils import dict_to_object, print_arguments, convert_string_based_on_type
+
 
 
 class MVectorTrainer(object):
@@ -222,6 +223,12 @@ class MVectorTrainer(object):
         :param input_size: 模型输入特征大小
         :param is_train: 是否获取训练模型
         """
+        def count_parameters(model):
+            return sum(p.numel() for p in model.parameters())
+
+        def count_trainable_parameters(model):
+            return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
         # 获取模型
         self.backbone = build_model(input_size=input_size, configs=self.configs)
 
@@ -266,6 +273,28 @@ class MVectorTrainer(object):
         if self.log_level == "DEBUG" or self.log_level == "INFO":
             # 打印模型信息，98是长度，这个取决于输入的音频长度
             summary(self.model, (1, 98, input_size))
+            total_params = count_parameters(self.model)
+            trainable_params = count_trainable_parameters(self.model)
+            print(f"手动计算 - 总参数量: {total_params/1000000:.2f}M")
+            print(f"手动计算 - 可训练参数: {trainable_params/1000000:.2f}M")
+
+             # 添加THOP计算FLOPs和参数量
+            dummy_input = torch.randn(1, 98, input_size).to(self.device)
+            
+            # 计算FLOPs和参数量
+            macs, params = profile(self.model, inputs=(dummy_input,))
+            
+            # 打印FLOPs和参数量
+            print(f"=" * 50)
+            print(f"计算量: {macs / 1000000:.2f} MMacs (约 {macs / 2000000:.2f} MFLOPs)")
+            print(f"参数总量: {params / 1000000:.2f} M")
+            print(f"=" * 50)
+            if is_train:
+                backbone_params = count_parameters(self.backbone)
+                classifier_params = count_parameters(self.model[1])  # classifier
+                print(f"Backbone参数: {backbone_params/1000000:.2f}M")
+                print(f"Classifier参数: {classifier_params/1000000:.2f}M")
+
         # 使用Pytorch2.0的编译器
         if self.configs.train_conf.use_compile and torch.__version__ >= "2" and platform.system().lower() != 'windows':
             self.model = torch.compile(self.model, mode="reduce-overhead")

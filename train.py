@@ -1,11 +1,4 @@
-'''
-Author: error: gitlease set dead value or install git & please set dead value or install git
-Date: 2025-04-21 09:30:17
-LastEditors: jawellson 936575674@qq.com
-LastEditTime: 2025-04-22 23:12:44
-FilePath: \vpr\train.py
-Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
-'''
+
 import argparse
 import functools
 
@@ -14,7 +7,7 @@ from mvector.utils.utils import add_arguments, print_arguments
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
-add_arg('configs',              str,    'configs/eres2net.yml',        '配置文件')
+add_arg('configs',              str,    'configs/myres2net.yml',        '配置文件')
 add_arg('data_augment_configs', str,    'configs/augmentation.yml', '数据增强配置文件')
 add_arg("local_rank",           int,    0,                          '多卡训练需要的参数')
 add_arg("use_gpu",              bool,   True,                       '是否使用GPU训练')
