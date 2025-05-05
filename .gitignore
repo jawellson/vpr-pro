@@ -4,9 +4,7 @@ build/
 dist/
 mvector.egg-info/
 log/
-test*.py
 dataset/
 audio_db/
 output/
-feature_models/
-models/
+/models
