@@ -207,10 +207,8 @@ class EFC(nn.Module):
                  if self.gamma.shape[0] == C and self.beta.shape[0] == C:
                       x_gui = (x_guiyi_1 * self.gamma + self.beta).clamp(min=-1e5, max=1e5)
                  else:
-                    #   print(f"Warning: Skipping affine transform in EFC normalization due to shape mismatch. Gamma: {self.gamma.shape}, Beta: {self.beta.shape}, C: {C}")
                       x_gui = x_guiyi_1
              else:
-                 # print(f"Warning: Skipping normalization in EFC as X_GLOBAL shape {X_GLOBAL.shape} != out shape {out.shape}")
                  x_gui = out
         else:
              x_gui = out
@@ -293,7 +291,7 @@ class GAM_Attention(nn.Module):
         x_channel_weighted = x * channel_att_weight
 
         spatial_att_features = self.spatial_attention(x_channel_weighted)
-        spatial_att_weight = self.sigmoid(spatial_att_features).clamp(min=1e-10, max=1.0 - 1e-10) # Add clamp
+        spatial_att_weight = self.sigmoid(spatial_att_features).clamp(min=1e-10, max=1.0 - 1e-10)
 
         # Apply spatial attention
         out = x_channel_weighted * spatial_att_weight
@@ -303,7 +301,7 @@ class GAM_Attention(nn.Module):
 
 # # --- Res2NetBlock---
 class Res2NetBlock(nn.Module):
-    def __init__(self, expansion, in_planes, planes, stride=1, base_width=32, scale=2, use_gate_in_block=True, reduction_ratio=16): # Added control params
+    def __init__(self, expansion, in_planes, planes, stride=1, base_width=32, scale=2, use_gate_in_block=True, reduction_ratio=16):
         super(Res2NetBlock, self).__init__()
         self.expansion = expansion
         width = int(math.floor(planes * (base_width / 64.0)))
@@ -363,7 +361,7 @@ class Res2NetBlock(nn.Module):
 
 # # --- EFCFusionRes2NetBlock---
 class EFCFusionRes2NetBlock(nn.Module):
-    def __init__(self, expansion, in_planes, planes, stride=1, base_width=32, scale=2, use_gate_in_block=True, reduction_ratio=16): # Added control params
+    def __init__(self, expansion, in_planes, planes, stride=1, base_width=32, scale=2, use_gate_in_block=True, reduction_ratio=16):
         super(EFCFusionRes2NetBlock, self).__init__()
         self.expansion = expansion
         width = int(math.floor(planes * (base_width / 64.0)))
@@ -434,7 +432,7 @@ class EFCFusionRes2NetBlock(nn.Module):
 
         return out
 
-# --- ERes2Net_DSConv  ---
+# --- EFCRes2Net_GAM  ---
 class EFCRes2Net_GAM(nn.Module):
     def __init__(self,
                  input_size,
@@ -480,7 +478,7 @@ class EFCRes2Net_GAM(nn.Module):
 
         channels_after_layer4 = max(1, m_channels * 8 * self.expansion)
         # Downsampling targets:
-        ds1_target_out_c = max(1, m_channels * 2 * self.expansion * self.mul_channel) # Should match Layer 2 input channel * mul_channel? Let's rethink channels
+        ds1_target_out_c = max(1, m_channels * 2 * self.expansion * self.mul_channel)
         # Let's redefine target channels based on the layer outputs they fuse with
         l1_out_c = max(1, m_channels * self.expansion)
         l2_out_c = max(1, m_channels * 2 * self.expansion)
@@ -553,7 +551,7 @@ class EFCRes2Net_GAM(nn.Module):
         self.fuse_mode1234 = EFC(c1=fuse1234_channels, c2=fuse1234_channels) if fuse1234_channels > 0 else nn.Identity()
 
         # --- Attention Module ---
-        gam_in_channels = fuse1234_channels # Input to GAM is the output of the final fusion
+        gam_in_channels = fuse1234_channels
         self.gam = GAM_Attention(in_channels=gam_in_channels, reduction_ratio=reduction_ratio) if gam_in_channels > 0 else nn.Identity()
 
         # --- Pooling ---
@@ -561,7 +559,7 @@ class EFCRes2Net_GAM(nn.Module):
 
         # --- Embedding Layers ---
         linear_input_dim = max(1, gam_in_channels * freq_dim_final * self.n_stats)
-        self.stats_dim = max(1, gam_in_channels * freq_dim_final) # Redefine stats_dim if needed by pooling
+        self.stats_dim = max(1, gam_in_channels * freq_dim_final)
 
         self.seg_1 = nn.Linear(linear_input_dim, embd_dim)
 
