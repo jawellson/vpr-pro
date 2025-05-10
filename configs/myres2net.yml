@@ -44,12 +44,15 @@ preprocess_conf:
     num_mel_bins: 80
 
 model_conf:
-  # 所使用的模型，支持EFCRes2Net_GAM、ResNet、Res2Net、ERes2NetV2
+  # 所使用的模型，支持EFCRes2Net_GAM、ResNet、Res2Net、ERes2NetV2、EcapaTdnn、TDNN
   model: 'EFCRes2Net_GAM'
   # 模型参数
   model_args:
     embd_dim: 192
-    m_channels: 32
+    m_channels: 32  #ResNet无此参数
+    # channels: [512, 512, 512, 512, 1536]    #EcapaTdnn
+    # pooling_type: 'ASP'                     #EcapaTdnn
+    # channels: 512                           #TDNN
   # 分类器参数
   classifier:
     # 分类器类型，支持Cosine、Linear
