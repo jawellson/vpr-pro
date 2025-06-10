@@ -17,6 +17,7 @@ python -m pip install mvector -U -i https://pypi.tuna.tsinghua.edu.cn/simple
 Download this project
 ```shell
 git clone https://github.com/jawellson/vpr-pro.git
+pip install -r requirements.txt
 ```
 
 # Create Data
