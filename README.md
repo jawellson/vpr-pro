@@ -1,6 +1,21 @@
 # The optimized res2net is used for voiceprint recognition
 This project improves the Res2net network through the EFC module, GAM module and EDSC module to achieve feature fusion, attention optimization and lightweight respectively, thereby achieving voiceprint recognition optimization in complex scenarios.
 
+# Model Performance Comparison
+
+The following table shows the performance comparison of different models on the CN-Celeb and VoxCeleb1 datasets.
+
+| Model | Params (M) | CN-Celeb EER | CN-Celeb minDCF | VoxCeleb1 EER | VoxCeleb1 minDCF |
+|---|---:|---:|---:|---:|---:|
+| ResNet | 8.81 | 0.1651 | 0.7068 | 0.0575 | 0.4773 |
+| TDNN | 2.77 | 0.1588 | 0.6867 | 0.0591 | 0.4481 |
+| Res2Net | 5.61 | 0.1452 | 0.6853 | 0.0766 | 0.6507 |
+| ECAPA-TDNN | 6.52 | 0.1242 | 0.6291 | 0.0462 | 0.3472 |
+| ERes2Net | 7.43 | 0.1160 | 0.5925 | 0.0535 | 0.4002 |
+| Ours | 6.31 | **0.0949** | **0.5249** | **0.0454** | 0.3494 |
+
+As shown in the table, the proposed model achieves the best performance on the CN-Celeb dataset, with an EER of 0.0949 and a minDCF of 0.5249. On the VoxCeleb1 dataset, the proposed model also obtains the lowest EER of 0.0454 while maintaining a relatively lightweight parameter size of 6.31M.
+
 # Install the relevant environment
  - The GPU version of Pytorch will be installed first, please skip it if you already have it installed.
 ```shell
